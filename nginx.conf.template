@@ -1,0 +1,29 @@
+env secret;
+worker_processes  1;
+error_log logs/error.log info;
+events {
+    worker_connections 1024;
+}
+http {
+    upstream gate{
+     server ${GATE_IP}:${GATE_PORT};
+    }
+    lua_package_path "/usr/local/openresty/nginx/jwt-lua/?.lua;;";
+    server {
+        listen 80;
+        set $uid '';
+        location / {
+            access_by_lua '
+            local jwt = require("resty.nginx-jwt")
+            jwt.auth()
+        ';
+            default_type application/json;
+            proxy_set_header uid $uid;
+            proxy_pass http://gate;
+        }
+        location /gate {
+            proxy_cache off;
+            root   /usr/local/openresty/nginx/html;
+        }
+    }
+}

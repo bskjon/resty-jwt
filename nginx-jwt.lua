@@ -7,18 +7,7 @@ local secret = (os.getenv("secret") and os.getenv("secret") ~= '') and os.getenv
 local M = {}
 
 function M.auth(claim_specs)
-    ---
-    local h = ngx.req.get_headers()
-    local request_headers_all = ""
-    for k, v in pairs(h) do
-        local rowtext = ""
-        rowtext = string.format("[%s %s]\n", k, v)
-        request_headers_all = request_headers_all .. rowtext
-
-    end
-    ngx.log(ngx.INFO, "DATA:" .. request_headers_all)
-
-    ---
+    
     if secret ~= nil then
         ngx.log(ngx.INFO, "Using secret to validate: " .. secret)
     end
@@ -63,7 +52,7 @@ function M.auth(claim_specs)
         ngx.exit(ngx.HTTP_UNAUTHORIZED)
     end
 
---    ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
+    ngx.log(ngx.INFO, "JWT: " .. cjson.encode(jwt_obj))
 
 
     -- setting header -- if used later and cookie is passed
